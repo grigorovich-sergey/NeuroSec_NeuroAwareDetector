@@ -17,6 +17,11 @@ from typing import Any, Mapping, Sequence
 from .records import _json_value
 
 
+class ExecutionMode(str, Enum):
+    PRACTICE = "practice"
+    EXPERIMENTAL = "experimental"
+
+
 class RunStatus(str, Enum):
     RUNNING = "running"
     COMPLETED = "completed"
@@ -117,6 +122,19 @@ class RunMetadata:
     failure: Mapping[str, Any] | None = None
     generated_files: list[Mapping[str, Any]] = field(default_factory=list)
     component_metadata: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        try:
+            self.mode = ExecutionMode(self.mode).value
+        except ValueError as error:
+            allowed = ", ".join(mode.value for mode in ExecutionMode)
+            raise ValueError(f"run mode must be one of: {allowed}") from error
+
+        configured_run = self.resolved_config.get("run")
+        if isinstance(configured_run, Mapping):
+            configured_mode = configured_run.get("mode")
+            if configured_mode is not None and configured_mode != self.mode:
+                raise ValueError("run metadata mode does not match resolved configuration")
 
     @classmethod
     def start(

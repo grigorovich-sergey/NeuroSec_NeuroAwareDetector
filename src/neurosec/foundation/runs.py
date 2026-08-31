@@ -8,15 +8,9 @@ import shutil
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from enum import Enum
 from pathlib import Path
 
-from .metadata import RunStatus
-
-
-class ExecutionMode(str, Enum):
-    PRACTICE = "practice"
-    EXPERIMENTAL = "experimental"
+from .metadata import ExecutionMode, RunStatus
 
 
 def new_run_id(prefix: str = "run") -> str:
@@ -41,6 +35,21 @@ def _resolve_relative(root: Path, value: str | Path) -> Path:
     return destination
 
 
+def _validate_non_overlapping(roots: dict[str, Path]) -> None:
+    items = list(roots.items())
+    for index, (left_name, left_path) in enumerate(items):
+        for right_name, right_path in items[index + 1 :]:
+            if (
+                left_path == right_path
+                or left_path in right_path.parents
+                or right_path in left_path.parents
+            ):
+                raise ValueError(
+                    f"run locations must be distinct and non-overlapping: "
+                    f"{left_name}={left_path} conflicts with {right_name}={right_path}"
+                )
+
+
 @dataclass(frozen=True, slots=True)
 class RunLayout:
     repo_root: Path
@@ -51,11 +60,17 @@ class RunLayout:
     @classmethod
     def from_config(cls, repo_root: str | Path, paths: dict[str, str]) -> "RunLayout":
         root = Path(repo_root).resolve()
+        resolved_roots = {
+            "practice": _resolve_relative(root, paths["practice"]),
+            "experimental_staging": _resolve_relative(root, paths["experimental_staging"]),
+            "experimental_completed": _resolve_relative(root, paths["experimental_completed"]),
+        }
+        _validate_non_overlapping(resolved_roots)
         return cls(
             repo_root=root,
-            practice_root=_resolve_relative(root, paths["practice"]),
-            experimental_staging_root=_resolve_relative(root, paths["experimental_staging"]),
-            experimental_completed_root=_resolve_relative(root, paths["experimental_completed"]),
+            practice_root=resolved_roots["practice"],
+            experimental_staging_root=resolved_roots["experimental_staging"],
+            experimental_completed_root=resolved_roots["experimental_completed"],
         )
 
     def create_practice(self, run_id: str | None = None) -> Path:
@@ -85,6 +100,8 @@ class RunLayout:
             raise ValueError("experimental run metadata is not readable JSON") from error
         if metadata.get("run_id") != source.name:
             raise ValueError("experimental run metadata ID does not match its staging path")
+        if metadata.get("mode") != ExecutionMode.EXPERIMENTAL.value:
+            raise ValueError("experimental run metadata mode is not experimental")
         if metadata.get("status") != RunStatus.COMPLETED.value:
             raise ValueError("experimental run metadata is not marked completed")
         destination = self.experimental_completed_root / source.name

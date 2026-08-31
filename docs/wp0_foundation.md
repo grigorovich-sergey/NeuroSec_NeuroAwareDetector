@@ -72,11 +72,12 @@ should request a WP0 extension before standardizing any external large-array ref
 - Successfully completed experimental output: `runs/experimental/<run-id>/` (tracked).
 
 Run identifiers are validated and paths cannot escape the repository root. Creation
-refuses an existing identity. `RunLayout.finalize_experimental` accepts only an explicit
-`RunStatus.COMPLETED`, verifies that `run_metadata.json` has the same run identity and
-completed status, moves only a direct staging child, and refuses to overwrite an
-existing completed run. Failed or interrupted runs therefore remain outside the
-completed evidence tree.
+refuses an existing identity. The three configured roots must be distinct and cannot
+contain one another. `RunLayout.finalize_experimental` accepts only an explicit
+`RunStatus.COMPLETED`, verifies that `run_metadata.json` has the same run identity,
+`experimental` mode, and completed status, moves only a direct staging child, and
+refuses to overwrite an existing completed run. Practice, failed, or interrupted runs
+therefore remain outside the completed evidence tree.
 
 ## Run metadata
 
@@ -91,6 +92,9 @@ captured automatically. Dataset, split, component, warning, exclusion, deviation
 failure facts must be supplied by the component that knows them. File inventory names
 are relative to the run, not machine-specific absolute paths. The metadata file excludes
 itself from its inventory to avoid a self-referential digest.
+
+Metadata construction accepts only `practice` or `experimental` mode. When the resolved
+configuration contains `run.mode`, that value must match the metadata mode.
 
 ## Environment and verification
 
@@ -131,3 +135,8 @@ Environment metadata records selected installed package versions rather than a c
 transitive lock file; accepted direct dependency ranges are centralized in
 `pyproject.toml`. The repository does not yet contain dataset acquisition machinery or
 an experimental evidence-producing integrator.
+
+A configuration field whose complete default is YAML `null` currently cannot be
+overridden with a concrete value. Component configurations should use concrete sentinel
+defaults until a downstream requirement justifies a reviewed extension of the strict
+type rules.
