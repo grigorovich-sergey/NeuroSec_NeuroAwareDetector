@@ -1,0 +1,22 @@
+run:
+  mode: practice
+  seed: 2027
+  id: wp0-smoke
+paths:
+  practice: runs/practice
+  experimental_staging: runs/staging
+  experimental_completed: runs/experimental
+synthetic:
+  sampling_rate_hz: 100.0
+  sample_count: 16
+  eeg_channels:
+    - C3
+    - C4
+  emg_channels:
+    - flexor
+    - extensor
+metadata:
+  environment_packages:
+    - neurosec-neuroaware-detector
+    - numpy
+    - PyYAML
