@@ -1,0 +1,10 @@
+# Complete configuration for the implemented bootstrap only.
+# Source mappings and scientific recipe values require the C1 audit/approval.
+run:
+  mode: practice
+  seed: 2027
+paths:
+  smoke: outputs/smoke
+  pilot: outputs/pilot
+  study_staging: outputs/study_staging
+  study: outputs/study

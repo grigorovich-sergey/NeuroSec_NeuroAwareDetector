@@ -1,14 +1,19 @@
-# Python environments and caches
+# Local Python environments, builds, and caches
 .venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+build/
+dist/
 
 # Local source datasets
-data/
+/data/
 
-# Practice runs and incomplete experimental staging
-runs/practice/*
-!runs/practice/.gitkeep
-runs/staging/
+# All generated smoke/pilot/harness output stays local, including test temp files.
+/outputs/smoke/
+/outputs/pilot/
+/outputs/study_staging/
+
+# Keep pre-bootstrap local runs ignored after their old entry points are removed.
+/runs/
