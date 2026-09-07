@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neurosec-neuroaware-detector"
+name = "neurosec-core"
 version = "0.1.0"
-description = "Research artifact for multimodal EEG-EMG runtime integrity monitoring"
+description = "Bounded offline EEG-EMG replay and rejection research artifact"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -26,5 +26,5 @@ test = [
 where = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "-ra --basetemp=runs/practice/pytest"
+addopts = "-ra --basetemp=outputs/smoke/pytest"
 testpaths = ["tests"]
