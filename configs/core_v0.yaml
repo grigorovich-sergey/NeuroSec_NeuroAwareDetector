@@ -1,5 +1,5 @@
-# Complete configuration for the implemented bootstrap only.
-# Source mappings and scientific recipe values require the C1 audit/approval.
+# Shared execution settings and the approved C1 subject-1 practice pilot.
+# C1 preparation is not implemented by this prerequisite patch.
 run:
   mode: practice
   seed: 2027
@@ -8,3 +8,55 @@ paths:
   pilot: outputs/pilot
   study_staging: outputs/study_staging
   study: outputs/study
+data:
+  dataset_doi: "10.5524/100788"
+  representation: brainvision_int16_multiplexed
+  data_kind: real
+  cohort_role: development
+  # Intentionally unset: provide the local source directory before execution.
+  source_root: ""
+  recordings:
+    - subject_id: 1
+      session_id: 1
+      task: multigrasp
+      condition: realMove
+      header_file: session1_sub1_multigrasp_realMove.vhdr
+      marker_file: session1_sub1_multigrasp_realMove.vmrk
+      binary_file: session1_sub1_multigrasp_realMove.eeg
+      header_sha256: ee3782324d1cd9ed2ab7942e4646a61ccf51484ad0d8b9376fb611f3bf5bc5f0
+      marker_sha256: de51f353336796766484748f5ef69854277c21d9f7e9f750c4984e6303302f7c
+      binary_sha256: 80a92c2dc0d99194004a06eeed0c27181039be82095d4017e8a8152f6970a917
+  classes:
+    - label: 0
+      name: Cup
+      event_code: 11
+      preparation_cue_code: 1
+    - label: 1
+      name: Ball
+      event_code: 21
+      preparation_cue_code: 2
+    - label: 2
+      name: Card
+      event_code: 61
+      preparation_cue_code: 6
+  eeg_channels: [FC5, FC3, FC1, FC2, FC4, FC6, C5, C3, C1, Cz, C2, C4, C6, CP5, CP3, CP1, CPz, CP2, CP4, CP6]
+  emg_channels: [EMG_1, EMG_2, EMG_3, EMG_4, EMG_5, EMG_6]
+preparation:
+  onset_reference: execution_cue
+  window_seconds: 3.0
+  units: V
+  retain_native_rates: true
+  eeg_design_n: 4
+  eeg_band_hz: [2.0, 30.0]
+  emg_design_n: 5
+  emg_band_hz: [10.0, 450.0]
+  emg_rectify: true
+  filter_scope: trial
+  padtype: odd
+  padlen: null
+split:
+  order: within_class_chronological
+  train_percent: 50
+  calibration_percent: 20
+  donor_percent: 10
+  minimum_trials_per_class: 20
