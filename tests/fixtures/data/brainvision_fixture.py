@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from neurosec_core.metadata import file_sha256
+from src.neurosec_core.metadata import file_sha256
 
 CHANNELS = (
     "Fp1 AF7 AF3 AFz F7 F5 F3 F1 Fz FT7 FC5 FC3 FC1 T7 C5 C3 C1 Cz TP7 "

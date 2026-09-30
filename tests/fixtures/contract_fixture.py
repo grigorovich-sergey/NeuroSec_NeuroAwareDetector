@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from neurosec_core.contracts import SignalPair
+from src.neurosec_core.contracts import SignalPair
 
 
 def synthetic_signal_pair(seed: int = 2027) -> SignalPair:

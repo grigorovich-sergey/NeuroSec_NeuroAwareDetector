@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from neurosec_core.metadata import (
+from src.neurosec_core.metadata import (
     METADATA_PATH,
     RunMetadata,
     capture_environment_identity,
@@ -143,11 +143,12 @@ def test_generated_practice_and_staging_files_are_ignored():
         "outputs/smoke/run/results.csv", "outputs/pilot/run/results.csv",
         "outputs/study_staging/run/results.csv", "runs/practice/old/results.csv",
     ]
+    expected = ("\0".join(paths) + "\0").encode("utf-8")
     result = subprocess.run(
-        ["git", "check-ignore", "--stdin"], input="\n".join(paths) + "\n",
-        cwd=REPO_ROOT, check=True, text=True, capture_output=True,
+        ["git", "check-ignore", "--stdin", "-z"], input=expected,
+        cwd=REPO_ROOT, check=True, capture_output=True,
     )
-    assert result.stdout.splitlines() == paths
+    assert result.stdout == expected
     tracked = subprocess.run(
         ["git", "ls-files", "--", "outputs/smoke", "outputs/pilot", "outputs/study_staging"],
         cwd=REPO_ROOT, check=True, text=True, capture_output=True,

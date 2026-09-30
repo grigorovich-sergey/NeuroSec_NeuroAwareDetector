@@ -10,13 +10,13 @@ import numpy as np
 import pytest
 
 from fixtures.data.brainvision_fixture import CHANNELS, LENGTH, RATE, make_source
-from neurosec_core import data
-from neurosec_core.config import load_config
-from neurosec_core.metadata import (
+from src.neurosec_core import data
+from src.neurosec_core.config import load_config
+from src.neurosec_core.metadata import (
     RunMetadata, capture_environment_identity, capture_project_state,
     file_sha256,
 )
-from neurosec_core.runs import RunLayout, new_run_id
+from src.neurosec_core.runs import RunLayout, new_run_id
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -273,12 +273,12 @@ def test_component_refuses_unresolved_paths_and_unapproved_semantics(source, gro
         data.inspect_sources(config)
 
 
-def _copy_prepared_metadata(prepared, directory):
+def _copy_prepared_metadata(prepared, directory, *, array_files=("eeg_s01.npy", "emg_s01.npy")):
     original = prepared[0]
     for name in ("dataset.json", "trials.csv"):
         shutil.copyfile(original / name, directory / name)
     # NPY samples are immutable in these metadata-mutation checks.
-    for name in ("eeg_s01.npy", "emg_s01.npy"):
+    for name in array_files:
         (directory / name).hardlink_to(original / name)
 
 
@@ -322,8 +322,10 @@ def test_reload_uses_mmap_then_copies_one_trial_and_rejects_nonfinite(prepared, 
     with pytest.raises(KeyError, match="unknown trial_id"):
         data.load_trial(directory, "unknown")
     monkeypatch.setattr(np, "load", actual_load)
-    _copy_prepared_metadata(prepared, tmp_path)
-    (tmp_path / "emg_s01.npy").unlink()  # Do not mutate the linked baseline.
+    opened.clear()
+    # Windows cannot unlink a mapped baseline file through a hard link.
+    # Link only EEG; create the deliberately nonfinite EMG as a separate file.
+    _copy_prepared_metadata(prepared, tmp_path, array_files=("eeg_s01.npy",))
     spec = manifest["arrays"]["emg"]
     bad = np.lib.format.open_memmap(tmp_path / spec["file"], mode="w+", dtype="float64", shape=tuple(spec["shape"]))
     bad[:] = 0

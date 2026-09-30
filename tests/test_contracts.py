@@ -3,7 +3,7 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from neurosec_core.contracts import Prediction
+from src.neurosec_core.contracts import Prediction
 
 
 def test_signal_pair_supports_native_rates_and_copies_inputs(signal_pair):

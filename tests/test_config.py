@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from neurosec_core.cli import main
-from neurosec_core.config import ConfigError, load_config, resolve_config
+from src.neurosec_core.cli import main
+from src.neurosec_core.config import ConfigError, load_config, resolve_config
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
